@@ -1,0 +1,72 @@
+<!-- Contador de Acessos -->
+<div id="view-counter" style="
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.85);
+    color: white;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+    padding: 6px 12px;
+    border-radius: 20px;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+">
+    👁 Visitas: <span id="view-count">0</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async function() {
+    // Config
+    const supabase = window.supabase.createClient(
+        'https://qgnprifuachmfxoaalax.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnbnByaWZ1YWNobWZ4b2FhbGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU1MTEzNjcsImV4cCI6MjA1MTA4NzM2N30.sDs7irvIojHudJWKrJmIyQ_c5W3QPwpZbYHyDslNEK2C3ZFRJF8NlApSAZnEsKwnRenj6RFg8zCY/u7oaRjOITgqAnYDFWy4ctkChOuLPv/AFNformrg=='
+    );
+    const PAGE_NAME = 'Project1';
+    
+    // Evitar contar múltiplas vezes na mesma sessão
+    if (sessionStorage.getItem('view_counted')) {
+        // Apenas mostrar o valor atual
+        const { data } = await supabase
+            .from('page_views')
+            .select('view_count')
+            .eq('page_name', PAGE_NAME)
+            .single();
+        
+        if (data) document.getElementById('view-count').textContent = data.view_count;
+        return;
+    }
+    
+    try {
+        // Incrementar contador
+        const { data: current } = await supabase
+            .from('page_views')
+            .select('view_count')
+            .eq('page_name', PAGE_NAME)
+            .single();
+        
+        const newCount = (current?.view_count || 0) + 1;
+        
+        await supabase
+            .from('page_views')
+            .upsert({
+                page_name: PAGE_NAME,
+                view_count: newCount,
+                last_updated: new Date().toISOString()
+            }, {
+                onConflict: 'page_name'
+            });
+        
+        document.getElementById('view-count').textContent = newCount;
+        sessionStorage.setItem('view_counted', 'true');
+        
+    } catch (error) {
+        console.error('Erro no contador:', error);
+        document.getElementById('view-count').textContent = '!';
+    }
+})();
+</script>
