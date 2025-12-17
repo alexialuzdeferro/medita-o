@@ -1,79 +1,306 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Contador Supabase</title>
-
-<style>
-body {
-  margin: 0;
-  background: #000;
-  color: #fff;
-  font-family: Arial, sans-serif;
-}
-
-#contador {
-  position: fixed;
-  bottom: 12px;
-  right: 12px;
-  font-size: 12px;
-  background: rgba(255,255,255,0.08);
-  padding: 6px 12px;
-  border-radius: 14px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌑</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            min-height: 100vh;
+            transition: background-color 1.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial', monospace;
+            background-color: #000000;
+        }
+        
+        /* Contador minimalista - apenas números */
+        #counter {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 300;
+            letter-spacing: 1px;
+            padding: 5px;
+            z-index: 1000;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        
+        #counter:hover {
+            color: rgba(255, 255, 255, 0.7);
+            transform: scale(1.05);
+        }
+        
+        /* Indicador de nova cor */
+        .color-change {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: pulse 2s ease-out;
+            z-index: 0;
+        }
+        
+        @keyframes pulse {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                width: 200vmax;
+                height: 200vmax;
+                opacity: 0;
+            }
+        }
+        
+        /* Efeito de partículas */
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        /* Logs escondidos */
+        #debug {
+            display: none;
+        }
+    </style>
 </head>
-
 <body>
+    <!-- Contador apenas numérico -->
+    <div id="counter">0</div>
+    
+    <!-- Debug escondido -->
+    <div id="debug"></div>
 
-<div id="contador">👤 <span id="valor">0</span></div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const supabase = window.supabase.createClient(
-  'https://qgnprifuachmfxoaalax.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnbnByaWZ1YWNobWZ4b2FhbGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzODU5MDcsImV4cCI6MjA4MDk2MTkwN30.sKSYFhcI-zflr9RUKXpWF0_5sc6foDG7yxdEirtE0W4'
-);
-
-const PAGE = 'contador_principal';
-
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    if (!sessionStorage.getItem('visitou')) {
-      const { data, error } = await supabase
-        .from('page_views')
-        .update({ view_count: supabase.rpc ? undefined : undefined })
-        .eq('page_name', PAGE)
-        .select();
-
-      if (error) throw error;
-
-      // incremento manual seguro
-      const atual = data[0].view_count + 1;
-
-      await supabase
-        .from('page_views')
-        .update({ view_count: atual })
-        .eq('page_name', PAGE);
-
-      sessionStorage.setItem('visitou', '1');
-      document.getElementById('valor').textContent = atual;
-    } else {
-      const { data } = await supabase
-        .from('page_views')
-        .select('view_count')
-        .eq('page_name', PAGE)
-        .single();
-
-      document.getElementById('valor').textContent = data.view_count;
-    }
-  } catch (e) {
-    console.error(e);
-    document.getElementById('valor').textContent = '—';
-  }
-});
-</script>
-
+    <script type="module">
+        // Importação do Supabase
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+        
+        // Configuração - SUBSTITUA com sua chave anon
+        const supabaseUrl = 'https://rmkcmvfmqwpzcoknznty.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJta2NtdmZtcXdwemNva256bnR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5ODkwNjYsImV4cCI6MjA4MTU2NTA2Nn0.RhAhAxRJEJN4mlDQmPgvdACprTE6B6xx_dMJ-YEELtM'
+        
+        // Inicializar Supabase
+        const supabase = createClient(supabaseUrl, supabaseKey)
+        
+        // Elementos DOM
+        const counterEl = document.getElementById('counter')
+        const bodyEl = document.body
+        const debugEl = document.getElementById('debug')
+        
+        // Paleta de cores para mudança (cores escuras elegantes)
+        const colorPalette = [
+            '#000000', // Preto puro
+            '#0a0a0a', // Quase preto
+            '#111111', // Cinza muito escuro
+            '#1a1a1a', // Cinza escuro
+            '#222222', // Cinza médio-escuro
+            '#2a2a2a', // Cinza
+            '#1c1c2e', // Azul escuro
+            '#1e2a1e', // Verde escuro
+            '#2e1c1c', // Vinho escuro
+            '#1c2e2e', // Ciano escuro
+            '#2e2e1c', // Oliva escuro
+            '#2c1c2e', // Roxo escuro
+            '#1c2c2e', // Verde-azulado escuro
+            '#2e1c2c'  // Magenta escuro
+        ]
+        
+        // Gerar partículas
+        function createParticles(count) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div')
+                particle.className = 'particle'
+                
+                // Posição aleatória
+                particle.style.left = Math.random() * 100 + 'vw'
+                particle.style.top = Math.random() * 100 + 'vh'
+                
+                // Tamanho aleatório
+                const size = Math.random() * 3 + 1
+                particle.style.width = size + 'px'
+                particle.style.height = size + 'px'
+                
+                // Opacidade aleatória
+                particle.style.opacity = Math.random() * 0.3 + 0.1
+                
+                // Adicionar ao body
+                bodyEl.appendChild(particle)
+                
+                // Remover após animação
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle)
+                    }
+                }, 3000)
+            }
+        }
+        
+        // Efeito de mudança de cor
+        function showColorChange() {
+            const changeIndicator = document.createElement('div')
+            changeIndicator.className = 'color-change'
+            bodyEl.appendChild(changeIndicator)
+            
+            // Remover após animação
+            setTimeout(() => {
+                if (changeIndicator.parentNode) {
+                    changeIndicator.parentNode.removeChild(changeIndicator)
+                }
+            }, 2000)
+        }
+        
+        // Escolher cor baseada no número de acessos
+        function getColorFromCount(count) {
+            // Usa o contador para selecionar cor da paleta
+            const colorIndex = (count - 1) % colorPalette.length
+            return colorPalette[colorIndex]
+        }
+        
+        // Efeito de brilho no contador
+        function pulseCounter() {
+            counterEl.style.color = 'rgba(255, 255, 255, 0.8)'
+            counterEl.style.textShadow = '0 0 15px rgba(255, 255, 255, 0.5)'
+            
+            setTimeout(() => {
+                counterEl.style.color = 'rgba(255, 255, 255, 0.4)'
+                counterEl.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.1)'
+            }, 800)
+        }
+        
+        // Atualizar contador no Supabase
+        async function updateCounter() {
+            try {
+                debugEl.innerHTML = 'Iniciando conexão...'
+                
+                const pageId = 'color_changer_page' // ID único para esta página
+                
+                // Tenta buscar contador existente
+                const { data: existing, error: fetchError } = await supabase
+                    .from('visit_counter')
+                    .select('id, count')
+                    .eq('page_id', pageId)
+                    .single()
+                
+                let newCount
+                
+                if (fetchError && fetchError.code === 'PGRST116') {
+                    // Criar novo registro
+                    const { data: newData, error: insertError } = await supabase
+                        .from('visit_counter')
+                        .insert([{ 
+                            page_id: pageId,
+                            page_title: 'Color Changer',
+                            count: 1
+                        }])
+                        .select()
+                        .single()
+                    
+                    if (insertError) throw insertError
+                    newCount = newData.count
+                    
+                } else if (fetchError) {
+                    throw fetchError
+                } else {
+                    // Incrementar existente
+                    const { data: updated, error: updateError } = await supabase
+                        .from('visit_counter')
+                        .update({ count: existing.count + 1 })
+                        .eq('id', existing.id)
+                        .select()
+                        .single()
+                    
+                    if (updateError) throw updateError
+                    newCount = updated.count
+                }
+                
+                // Atualizar display
+                counterEl.textContent = newCount
+                
+                // Mudar cor do fundo
+                const newColor = getColorFromCount(newCount)
+                bodyEl.style.backgroundColor = newColor
+                
+                // Efeitos visuais
+                showColorChange()
+                createParticles(50)
+                pulseCounter()
+                
+                // Log para debug
+                debugEl.innerHTML = `Acesso #${newCount} | Cor: ${newColor}`
+                
+            } catch (error) {
+                console.error('Erro:', error)
+                debugEl.innerHTML = `Erro: ${error.message}`
+                
+                // Fallback: usar localStorage
+                const localCount = localStorage.getItem('color_page_count') || 0
+                const newLocalCount = parseInt(localCount) + 1
+                localStorage.setItem('color_page_count', newLocalCount)
+                
+                counterEl.textContent = newLocalCount
+                
+                // Mudar cor mesmo no fallback
+                const newColor = getColorFromCount(newLocalCount)
+                bodyEl.style.backgroundColor = newColor
+                
+                // Efeitos visuais
+                showColorChange()
+                createParticles(30)
+                pulseCounter()
+            }
+        }
+        
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Pequeno delay para efeito dramático
+            setTimeout(async () => {
+                await updateCounter()
+                
+                // Adicionar mais partículas periodicamente
+                setInterval(() => {
+                    createParticles(5)
+                }, 5000)
+                
+                // Efeito de hover no contador
+                counterEl.addEventListener('mouseenter', () => {
+                    counterEl.style.transform = 'scale(1.2)'
+                    counterEl.style.color = 'rgba(255, 255, 255, 0.9)'
+                })
+                
+                counterEl.addEventListener('mouseleave', () => {
+                    counterEl.style.transform = 'scale(1)'
+                    counterEl.style.color = 'rgba(255, 255, 255, 0.4)'
+                })
+            }, 500)
+        })
+        
+        // Atualizar quando a página fica visível novidade
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                setTimeout(updateCounter, 2000)
+            }
+        })
+    </script>
 </body>
 </html>
