@@ -1,143 +1,78 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contador Único</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contador Supabase</title>
 
 <style>
 body {
-    margin: 0;
-    padding: 0;
-    background: #000;
-    height: 100vh;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  background: #000;
+  color: #fff;
+  font-family: Arial, sans-serif;
 }
 
-/* Contador ultra discreto */
-#counter {
-    position: fixed;
-    bottom: 12px;
-    right: 12px;
-    background: rgba(255,255,255,0.05);
-    color: rgba(255,255,255,0.6);
-    font-size: 11px;
-    padding: 6px 12px;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(6px);
-    z-index: 9999;
-    user-select: none;
-}
-
-#count {
-    color: #fff;
-    font-size: 12px;
-    margin-left: 4px;
-}
-
-.dot {
-    display: inline-block;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    margin-left: 6px;
-    background: rgba(74,222,128,0.5);
-    animation: pulse 2s infinite;
-}
-
-.dot.offline {
-    background: rgba(251,191,36,0.6);
-    animation: none;
-}
-
-@keyframes pulse {
-    0%,100% { opacity: .4 }
-    50% { opacity: 1 }
+#contador {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  font-size: 12px;
+  background: rgba(255,255,255,0.08);
+  padding: 6px 12px;
+  border-radius: 14px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="counter" title="Visitantes totais">
-    👤 <span id="count">0</span>
-    <span id="status" class="dot"></span>
-</div>
+<div id="contador">👤 <span id="valor">0</span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-/* ================= CONFIGURAÇÃO ================= */
-
-const SUPABASE_URL = 'https://qgnprifuachmfxoaalax.supabase.co';
-const SUPABASE_KEY = 'SUA_ANON_KEY_AQUI';
-const SITE_NAME = 'site_alexialuzdeferro';
-
-/* =============================================== */
-
 const supabase = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
+  'https://qgnprifuachmfxoaalax.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnbnByaWZ1YWNobWZ4b2FhbGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzODU5MDcsImV4cCI6MjA4MDk2MTkwN30.sKSYFhcI-zflr9RUKXpWF0_5sc6foDG7yxdEirtE0W4'
 );
 
-document.addEventListener('DOMContentLoaded', init);
+const PAGE = 'contador_principal';
 
-async function init() {
-    try {
-        if (!sessionStorage.getItem('site_visited')) {
-            const total = await incrementarContador();
-            sessionStorage.setItem('site_visited', 'true');
-            atualizarUI(total);
-        } else {
-            const total = await buscarContador();
-            atualizarUI(total);
-        }
-    } catch (e) {
-        usarModoOffline();
-    }
-}
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    if (!sessionStorage.getItem('visitou')) {
+      const { data, error } = await supabase
+        .from('page_views')
+        .update({ view_count: supabase.rpc ? undefined : undefined })
+        .eq('page_name', PAGE)
+        .select();
 
-/* ====== RPC SEGURO ====== */
-async function incrementarContador() {
-    const { data, error } = await supabase.rpc(
-        'incrementar_page_view',
-        { p_page_name: SITE_NAME }
-    );
+      if (error) throw error;
 
-    if (error) throw error;
-    return data;
-}
+      // incremento manual seguro
+      const atual = data[0].view_count + 1;
 
-/* ====== SELECT ====== */
-async function buscarContador() {
-    const { data, error } = await supabase
+      await supabase
+        .from('page_views')
+        .update({ view_count: atual })
+        .eq('page_name', PAGE);
+
+      sessionStorage.setItem('visitou', '1');
+      document.getElementById('valor').textContent = atual;
+    } else {
+      const { data } = await supabase
         .from('page_views')
         .select('view_count')
-        .eq('page_name', SITE_NAME)
+        .eq('page_name', PAGE)
         .single();
 
-    if (error) throw error;
-    return data.view_count;
-}
-
-/* ====== UI ====== */
-function atualizarUI(valor) {
-    const el = document.getElementById('count');
-    el.textContent = valor;
-    el.style.transform = 'scale(1.3)';
-    setTimeout(() => el.style.transform = 'scale(1)', 200);
-}
-
-/* ====== OFFLINE ====== */
-function usarModoOffline() {
-    let local = parseInt(localStorage.getItem('local_views') || '0');
-    local++;
-    localStorage.setItem('local_views', local);
-
-    document.getElementById('count').textContent = local;
-    document.getElementById('status').classList.add('offline');
-}
+      document.getElementById('valor').textContent = data.view_count;
+    }
+  } catch (e) {
+    console.error(e);
+    document.getElementById('valor').textContent = '—';
+  }
+});
 </script>
 
 </body>
