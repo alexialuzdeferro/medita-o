@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App de Meditação Guiada</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -253,42 +252,10 @@
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #e0e0e0;
-            position: relative;
         }
         
         .highlight {
             color: #7b2cbf;
-            font-weight: 600;
-        }
-        
-        /* Contador de acessos - discreto, roxo, canto inferior direito */
-        .view-counter {
-            position: fixed;
-            bottom: 15px;
-            right: 15px;
-            background-color: rgba(123, 44, 191, 0.85);
-            color: white;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 10px rgba(123, 44, 191, 0.3);
-            z-index: 1000;
-            opacity: 0.6;
-            transition: opacity 0.3s ease;
-        }
-        
-        .view-counter:hover {
-            opacity: 1;
-        }
-        
-        .view-counter i {
-            font-size: 0.7rem;
-        }
-        
-        .view-count-number {
             font-weight: 600;
         }
         
@@ -310,13 +277,6 @@
             
             .video-player {
                 height: 250px;
-            }
-            
-            .view-counter {
-                bottom: 10px;
-                right: 10px;
-                padding: 6px 10px;
-                font-size: 0.7rem;
             }
         }
         
@@ -431,106 +391,8 @@
         </div>
     </div>
 
-    <!-- Contador de acessos discreto - canto inferior direito -->
-    <div class="view-counter">
-        <i class="fas fa-eye"></i>
-        <span class="view-count-number" id="viewCount">0</span>
-        <span>acessos</span>
-    </div>
-
     <script>
-        // ============================================
-        // CONFIGURAÇÃO DO SUPABASE - SUBSTITUA AQUI!
-        // ============================================
-        const SUPABASE_URL = 'rbygxkbewzknvjjhxdvw';  // Ex: https://xyzcompany.supabase.co
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJieWd4a2Jld3prbnZqamh4ZHZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwMDcxNjQsImV4cCI6MjA4MTU4MzE2NH0.YrHF9HEGo6yv9MyNsPzFgBhaAB1DRh2SLU8f7L6s1nY';    // Sua chave anon/public
-        
-        // Inicializa o Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // ============================================
-        // FUNÇÕES DO CONTADOR DE ACESSOS
-        // ============================================
-        
-        // Buscar contagem atual
-        async function getViewCount() {
-            try {
-                const { data, error } = await supabase
-                    .from('page_views')
-                    .select('view_count')
-                    .eq('page', 'contador2')
-                    .single();
-                
-                if (error) throw error;
-                return data?.view_count || 0;
-            } catch (error) {
-                console.log('Erro ao buscar contagem:', error);
-                return 0;
-            }
-        }
-        
-        // Incrementar contador
-        async function incrementViewCount() {
-            try {
-                // Primeiro, pega o valor atual
-                const { data: current, error: fetchError } = await supabase
-                    .from('page_views')
-                    .select('view_count')
-                    .eq('page', 'contador2')
-                    .single();
-                
-                if (fetchError) throw fetchError;
-                
-                const newCount = (current?.view_count || 0) + 1;
-                
-                // Atualiza com o novo valor
-                const { data, error } = await supabase
-                    .from('page_views')
-                    .update({ 
-                        view_count: newCount,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('page', 'meditação')
-                    .select();
-                
-                if (error) throw error;
-                return newCount;
-            } catch (error) {
-                console.log('Erro ao incrementar:', error);
-                return null;
-            }
-        }
-        
-        // Atualizar display do contador
-        function updateCounterDisplay(count) {
-            const counterElement = document.getElementById('viewCount');
-            if (counterElement) {
-                counterElement.textContent = count.toLocaleString('pt-BR');
-            }
-        }
-        
-        // Inicializar contador ao carregar a página
-        async function initCounter() {
-            // Verifica se já contou nesta sessão
-            const counted = sessionStorage.getItem('meditacao_counted');
-            
-            if (!counted) {
-                // Incrementa e marca como contado nesta sessão
-                const newCount = await incrementViewCount();
-                if (newCount !== null) {
-                    updateCounterDisplay(newCount);
-                    sessionStorage.setItem('meditacao_counted', 'true');
-                }
-            } else {
-                // Apenas mostra o valor atual
-                const count = await getViewCount();
-                updateCounterDisplay(count);
-            }
-        }
-        
-        // ============================================
-        // DADOS DOS VÍDEOS
-        // ============================================
+        // Dados dos vídeos (ID, título, descrição)
         const videoData = {
             'T59guY2g208': {
                 title: 'Meditação para Iniciantes',
@@ -607,12 +469,8 @@
             }
         }
         
-        // Inicialização ao carregar a página
+        // Selecionar o primeiro vídeo por padrão
         window.onload = function() {
-            // Inicializa o contador de acessos
-            initCounter();
-            
-            // Selecionar o primeiro vídeo por padrão
             setTimeout(() => {
                 selectVideo('T59guY2g208', 'Meditação para Iniciantes', videoData['T59guY2g208'].description);
             }, 500);
