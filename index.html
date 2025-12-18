@@ -3,304 +3,478 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌑</title>
+    <title>App de Meditação Guiada</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
         
         body {
+            background-color: #f5f0ff;
+            color: #333;
+            padding: 20px;
             min-height: 100vh;
-            transition: background-color 1.5s ease;
+            background-image: linear-gradient(to bottom right, #f9f5ff, #f0e6ff);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .header {
+            background-color: #7b2cbf;
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 6px 15px rgba(123, 44, 191, 0.3);
+            position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Arial', monospace;
-            background-color: #000000;
+            flex-direction: column;
+            text-align: center;
         }
         
-        /* Contador minimalista - apenas números */
-        #counter {
-            position: fixed;
-            bottom: 15px;
-            right: 15px;
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.4);
-            font-weight: 300;
-            letter-spacing: 1px;
-            padding: 5px;
-            z-index: 1000;
-            font-family: 'Courier New', monospace;
-            transition: all 0.3s ease;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-        }
-        
-        #counter:hover {
-            color: rgba(255, 255, 255, 0.7);
-            transform: scale(1.05);
-        }
-        
-        /* Indicador de nova cor */
-        .color-change {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            animation: pulse 2s ease-out;
-            z-index: 0;
-        }
-        
-        @keyframes pulse {
-            0% {
-                width: 0;
-                height: 0;
-                opacity: 1;
-            }
-            100% {
-                width: 200vmax;
-                height: 200vmax;
-                opacity: 0;
-            }
-        }
-        
-        /* Efeito de partículas */
-        .particle {
+        .header::before {
+            content: "";
             position: absolute;
-            width: 2px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.1);
+            top: -30%;
+            right: -10%;
+            width: 150px;
+            height: 150px;
+            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            pointer-events: none;
         }
         
-        /* Logs escondidos */
-        #debug {
-            display: none;
+        .header::after {
+            content: "";
+            position: absolute;
+            bottom: -40%;
+            left: -10%;
+            width: 180px;
+            height: 180px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+        
+        .app-title {
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 25px;
+        }
+        
+        .app-title i {
+            color: #ffd166;
+            font-size: 2.8rem;
+        }
+        
+        .app-title span {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .player-section {
+            background-color: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            order: 1;
+        }
+        
+        .player-title {
+            color: #7b2cbf;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .player-title i {
+            color: #7bc6b7;
+        }
+        
+        .video-player {
+            background-color: #1a1a2e;
+            border-radius: 15px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .video-placeholder {
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .video-placeholder i {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            color: #7b2cbf;
+        }
+        
+        .video-placeholder p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .selected-video-info {
+            background-color: #f9f5ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+        
+        .selected-video-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .selected-video-info p {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .video-list {
+            background-color: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            order: 2;
+        }
+        
+        .video-list h2 {
+            color: #7b2cbf;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0e6ff;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .video-list h2 i {
+            color: #ff9a76;
+        }
+        
+        .video-item {
+            background-color: #f9f5ff;
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 5px solid #7b2cbf;
+        }
+        
+        .video-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 12px rgba(123, 44, 191, 0.15);
+            background-color: #f0e6ff;
+        }
+        
+        .video-number {
+            background-color: #7b2cbf;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .video-info h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .video-info p {
+            color: #666;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .video-link {
+            margin-left: auto;
+            color: #7b2cbf;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .video-item:hover .video-link {
+            transform: scale(1.2);
+        }
+        
+        .footer {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .highlight {
+            color: #7b2cbf;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 25px 20px;
+            }
+            
+            .app-title {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .app-title i {
+                font-size: 2.5rem;
+            }
+            
+            .video-player {
+                height: 250px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Contador apenas numérico -->
-    <div id="counter">0</div>
-    
-    <!-- Debug escondido -->
-    <div id="debug"></div>
+    <div class="container">
+        <div class="header">
+            <div class="app-title">
+                <i class="fas fa-spa"></i>
+                <span>Meditação Guiada 🧘‍♀️</span>
+            </div>
+            
+            <div class="player-section">
+                <h2 class="player-title"><i class="fas fa-play-circle"></i> Player de Vídeo</h2>
+                
+                <div class="video-player" id="videoPlayer">
+                    <div class="video-placeholder">
+                        <i class="fab fa-youtube"></i>
+                        <p>Selecione um vídeo da lista para reproduzir</p>
+                    </div>
+                </div>
+                
+                <div class="selected-video-info" id="videoInfo">
+                    <h3>Nenhum vídeo selecionado</h3>
+                    <p>Clique em um dos vídeos da lista para ver informações detalhadas e reproduzir.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="video-list">
+                <h2><i class="fas fa-list"></i> Lista de Vídeos</h2>
+                
+                <div class="video-item" onclick="selectVideo('T59guY2g208', 'Meditação para Iniciantes', 'Uma sessão guiada perfeita para quem está começando na prática da meditação. Aprenda técnicas básicas de respiração e foco.')">
+                    <div class="video-number">1</div>
+                    <div class="video-info">
+                        <h3>Meditação para Iniciantes</h3>
+                        <p><i class="far fa-eye"></i> 245K visualizações</p>
+                    </div>
+                    <div class="video-link">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                </div>
+                
+                <div class="video-item" onclick="selectVideo('B6mQUzmlZAo', 'Meditação para Relaxamento Profundo', 'Liberte o estresse e a ansiedade com esta meditação guiada para um relaxamento profundo.')">
+                    <div class="video-number">2</div>
+                    <div class="video-info">
+                        <h3>Meditação para Relaxamento Profundo</h3>
+                        <p><i class="far fa-eye"></i> 189K visualizações</p>
+                    </div>
+                    <div class="video-link">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                </div>
+                
+                <div class="video-item" onclick="selectVideo('TPH5ynw5ukM', 'Meditação para Dormir', 'Combata a insônia e tenha uma noite de sono tranquila com esta meditação guiada.')">
+                    <div class="video-number">3</div>
+                    <div class="video-info">
+                        <h3>Meditação para Dormir</h3>
+                        <p><i class="far fa-eye"></i> 312K visualizações</p>
+                    </div>
+                    <div class="video-link">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                </div>
+                
+                <div class="video-item" onclick="selectVideo('ZNr-Jl4MZcw', 'Meditação para Redução da Ansiedade', 'Técnicas específicas para acalmar a mente e reduzir os sintomas de ansiedade.')">
+                    <div class="video-number">4</div>
+                    <div class="video-info">
+                        <h3>Meditação para Redução da Ansiedade</h3>
+                        <p><i class="far fa-eye"></i> 156K visualizações</p>
+                    </div>
+                    <div class="video-link">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                </div>
+                
+                <div class="video-item" onclick="selectVideo('28szq1vC7OY', 'Meditação para Foco e Concentração', 'Melhore seu foco e produtividade com esta meditação guiada para clareza mental.')">
+                    <div class="video-number">5</div>
+                    <div class="video-info">
+                        <h3>Meditação para Foco e Concentração</h3>
+                        <p><i class="far fa-eye"></i> 98K visualizações</p>
+                    </div>
+                    <div class="video-link">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                </div>
+                
+                <div class="video-item" onclick="selectVideo('jl7zmFPjUZk', 'Meditação da Manhã Energética', 'Comece o dia com energia positiva e mentalidade focada com esta meditação matinal.')">
+                    <div class="video-number">6</div>
+                    <div class="video-info">
+                        <h3>Meditação da Manhã Energética</h3>
+                        <p><i class="far fa-eye"></i> 203K visualizações</p>
+                    </div>
+                    <div class="video-link">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>App de Meditação Guiada 🧘‍♀️ • <span class="highlight">6 sessões disponíveis</span> • Selecione um vídeo para começar</p>
+        </div>
+    </div>
 
-    <script type="module">
-        // Importação do Supabase
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-        
-        // Configuração - SUBSTITUA com sua chave anon
-        const supabaseUrl = 'https://rmkcmvfmqwpzcoknznty.supabase.co'
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJta2NtdmZtcXdwemNva256bnR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5ODkwNjYsImV4cCI6MjA4MTU2NTA2Nn0.RhAhAxRJEJN4mlDQmPgvdACprTE6B6xx_dMJ-YEELtM'
-        
-        // Inicializar Supabase
-        const supabase = createClient(supabaseUrl, supabaseKey)
-        
-        // Elementos DOM
-        const counterEl = document.getElementById('counter')
-        const bodyEl = document.body
-        const debugEl = document.getElementById('debug')
-        
-        // Paleta de cores para mudança (cores escuras elegantes)
-        const colorPalette = [
-            '#000000', // Preto puro
-            '#0a0a0a', // Quase preto
-            '#111111', // Cinza muito escuro
-            '#1a1a1a', // Cinza escuro
-            '#222222', // Cinza médio-escuro
-            '#2a2a2a', // Cinza
-            '#1c1c2e', // Azul escuro
-            '#1e2a1e', // Verde escuro
-            '#2e1c1c', // Vinho escuro
-            '#1c2e2e', // Ciano escuro
-            '#2e2e1c', // Oliva escuro
-            '#2c1c2e', // Roxo escuro
-            '#1c2c2e', // Verde-azulado escuro
-            '#2e1c2c'  // Magenta escuro
-        ]
-        
-        // Gerar partículas
-        function createParticles(count) {
-            for (let i = 0; i < count; i++) {
-                const particle = document.createElement('div')
-                particle.className = 'particle'
-                
-                // Posição aleatória
-                particle.style.left = Math.random() * 100 + 'vw'
-                particle.style.top = Math.random() * 100 + 'vh'
-                
-                // Tamanho aleatório
-                const size = Math.random() * 3 + 1
-                particle.style.width = size + 'px'
-                particle.style.height = size + 'px'
-                
-                // Opacidade aleatória
-                particle.style.opacity = Math.random() * 0.3 + 0.1
-                
-                // Adicionar ao body
-                bodyEl.appendChild(particle)
-                
-                // Remover após animação
-                setTimeout(() => {
-                    if (particle.parentNode) {
-                        particle.parentNode.removeChild(particle)
-                    }
-                }, 3000)
+    <script>
+        // Dados dos vídeos (ID, título, descrição)
+        const videoData = {
+            'T59guY2g208': {
+                title: 'Meditação para Iniciantes',
+                description: 'Uma sessão guiada perfeita para quem está começando na prática da meditação. Aprenda técnicas básicas de respiração e foco para acalmar a mente e reduzir o estresse do dia a dia. Ideal para praticar diariamente.',
+                views: '245K visualizações'
+            },
+            'B6mQUzmlZAo': {
+                title: 'Meditação para Relaxamento Profundo',
+                description: 'Liberte o estresse e a ansiedade com esta meditação guiada para um relaxamento profundo. Técnicas de visualização e respiração que ajudam a relaxar corpo e mente completamente.',
+                views: '189K visualizações'
+            },
+            'TPH5ynw5ukM': {
+                title: 'Meditação para Dormir',
+                description: 'Combata a insônia e tenha uma noite de sono tranquila com esta meditação guiada. Pronúncia suave e técnicas de relaxamento progressivo para ajudá-lo a adormecer naturalmente.',
+                views: '312K visualizações'
+            },
+            'ZNr-Jl4MZcw': {
+                title: 'Meditação para Redução da Ansiedade',
+                description: 'Técnicas específicas para acalmar a mente e reduzir os sintomas de ansiedade. Foco em ancoragem no presente e respiração consciente para momentos de tensão.',
+                views: '156K visualizações'
+            },
+            '28szq1vC7OY': {
+                title: 'Meditação para Foco e Concentração',
+                description: 'Melhore seu foco e produtividade com esta meditação guiada para clareza mental. Ideal para praticar antes de trabalhar ou estudar, ajudando a eliminar distrações.',
+                views: '98K visualizações'
+            },
+            'jl7zmFPjUZk': {
+                title: 'Meditação da Manhã Energética',
+                description: 'Comece o dia com energia positiva e mentalidade focada com esta meditação matinal. Estabeleça intenções para o dia e cultive gratidão para uma jornada produtiva.',
+                views: '203K visualizações'
             }
-        }
+        };
         
-        // Efeito de mudança de cor
-        function showColorChange() {
-            const changeIndicator = document.createElement('div')
-            changeIndicator.className = 'color-change'
-            bodyEl.appendChild(changeIndicator)
+        function selectVideo(videoId, title, description) {
+            // Atualizar o player de vídeo
+            const videoPlayer = document.getElementById('videoPlayer');
+            videoPlayer.innerHTML = `
+                <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen
+                    style="border-radius: 15px;"
+                ></iframe>
+            `;
             
-            // Remover após animação
-            setTimeout(() => {
-                if (changeIndicator.parentNode) {
-                    changeIndicator.parentNode.removeChild(changeIndicator)
-                }
-            }, 2000)
-        }
-        
-        // Escolher cor baseada no número de acessos
-        function getColorFromCount(count) {
-            // Usa o contador para selecionar cor da paleta
-            const colorIndex = (count - 1) % colorPalette.length
-            return colorPalette[colorIndex]
-        }
-        
-        // Efeito de brilho no contador
-        function pulseCounter() {
-            counterEl.style.color = 'rgba(255, 255, 255, 0.8)'
-            counterEl.style.textShadow = '0 0 15px rgba(255, 255, 255, 0.5)'
+            // Atualizar informações do vídeo
+            const videoInfo = document.getElementById('videoInfo');
+            const data = videoData[videoId];
             
-            setTimeout(() => {
-                counterEl.style.color = 'rgba(255, 255, 255, 0.4)'
-                counterEl.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.1)'
-            }, 800)
-        }
-        
-        // Atualizar contador no Supabase
-        async function updateCounter() {
-            try {
-                debugEl.innerHTML = 'Iniciando conexão...'
-                
-                const pageId = 'color_changer_page' // ID único para esta página
-                
-                // Tenta buscar contador existente
-                const { data: existing, error: fetchError } = await supabase
-                    .from('visit_counter')
-                    .select('id, count')
-                    .eq('page_id', pageId)
-                    .single()
-                
-                let newCount
-                
-                if (fetchError && fetchError.code === 'PGRST116') {
-                    // Criar novo registro
-                    const { data: newData, error: insertError } = await supabase
-                        .from('visit_counter')
-                        .insert([{ 
-                            page_id: pageId,
-                            page_title: 'Color Changer',
-                            count: 1
-                        }])
-                        .select()
-                        .single()
-                    
-                    if (insertError) throw insertError
-                    newCount = newData.count
-                    
-                } else if (fetchError) {
-                    throw fetchError
-                } else {
-                    // Incrementar existente
-                    const { data: updated, error: updateError } = await supabase
-                        .from('visit_counter')
-                        .update({ count: existing.count + 1 })
-                        .eq('id', existing.id)
-                        .select()
-                        .single()
-                    
-                    if (updateError) throw updateError
-                    newCount = updated.count
+            videoInfo.innerHTML = `
+                <h3>${data.title}</h3>
+                <p><strong>${data.views}</strong></p>
+                <p style="margin-top: 10px;">${data.description}</p>
+            `;
+            
+            // Destacar o vídeo selecionado na lista
+            document.querySelectorAll('.video-item').forEach(item => {
+                item.style.backgroundColor = '#f9f5ff';
+                item.style.borderLeft = '5px solid #7b2cbf';
+            });
+            
+            // Encontrar e destacar o item clicado
+            const items = document.querySelectorAll('.video-item');
+            for (let i = 0; i < items.length; i++) {
+                const itemTitle = items[i].querySelector('h3').textContent;
+                if (itemTitle === title) {
+                    items[i].style.backgroundColor = '#f0e6ff';
+                    items[i].style.borderLeft = '5px solid #ff9a76';
+                    break;
                 }
-                
-                // Atualizar display
-                counterEl.textContent = newCount
-                
-                // Mudar cor do fundo
-                const newColor = getColorFromCount(newCount)
-                bodyEl.style.backgroundColor = newColor
-                
-                // Efeitos visuais
-                showColorChange()
-                createParticles(50)
-                pulseCounter()
-                
-                // Log para debug
-                debugEl.innerHTML = `Acesso #${newCount} | Cor: ${newColor}`
-                
-            } catch (error) {
-                console.error('Erro:', error)
-                debugEl.innerHTML = `Erro: ${error.message}`
-                
-                // Fallback: usar localStorage
-                const localCount = localStorage.getItem('color_page_count') || 0
-                const newLocalCount = parseInt(localCount) + 1
-                localStorage.setItem('color_page_count', newLocalCount)
-                
-                counterEl.textContent = newLocalCount
-                
-                // Mudar cor mesmo no fallback
-                const newColor = getColorFromCount(newLocalCount)
-                bodyEl.style.backgroundColor = newColor
-                
-                // Efeitos visuais
-                showColorChange()
-                createParticles(30)
-                pulseCounter()
             }
         }
         
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Pequeno delay para efeito dramático
-            setTimeout(async () => {
-                await updateCounter()
-                
-                // Adicionar mais partículas periodicamente
-                setInterval(() => {
-                    createParticles(5)
-                }, 5000)
-                
-                // Efeito de hover no contador
-                counterEl.addEventListener('mouseenter', () => {
-                    counterEl.style.transform = 'scale(1.2)'
-                    counterEl.style.color = 'rgba(255, 255, 255, 0.9)'
-                })
-                
-                counterEl.addEventListener('mouseleave', () => {
-                    counterEl.style.transform = 'scale(1)'
-                    counterEl.style.color = 'rgba(255, 255, 255, 0.4)'
-                })
-            }, 500)
-        })
-        
-        // Atualizar quando a página fica visível novidade
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                setTimeout(updateCounter, 2000)
-            }
-        })
+        // Selecionar o primeiro vídeo por padrão
+        window.onload = function() {
+            setTimeout(() => {
+                selectVideo('T59guY2g208', 'Meditação para Iniciantes', videoData['T59guY2g208'].description);
+            }, 500);
+        };
     </script>
 </body>
 </html>
